@@ -22,6 +22,9 @@ const ControllerCommon = require('./common/controllerCommon');
 // Load $entity entity
 const $entity = require('../model/${entity.name}');
 
+// Load UUID
+const uuidv4 = require('uuid/v4');
+
 /**
  * $entity.name Controller
  */
@@ -120,7 +123,18 @@ module.exports = class ${entity.name}Controller {
 		if (${entity.keyAttributesNamesAsString(' && ', 'req.body.', '')}) {
 #foreach ( $key in $entity.keyAttributes )
 #set ( $uncapitalizedKeyAttribName = ${fn.uncapitalize($key.name)} )
+#if (($key.type == "String" || $key.type == "char") && $key.maxLength == 32)
+ 			${uncapitalizedEntityName}.${uncapitalizedKeyAttribName} = uuidv4(); // String[32] treated as UUID
+#else
  			${uncapitalizedEntityName}.${uncapitalizedKeyAttribName} = req.body.${uncapitalizedKeyAttribName};		
+#end
+#end
+		} else {
+#foreach ( $key in $entity.keyAttributes )
+#set ( $uncapitalizedKeyAttribName = ${fn.uncapitalize($key.name)} )
+#if (($key.type == "String" || $key.type == "char") && $key.maxLength == 32)
+ 			${uncapitalizedEntityName}.${uncapitalizedKeyAttribName} = uuidv4(); // String[32] treated as UUID
+#end
 #end
 		}
 #end
